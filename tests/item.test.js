@@ -100,4 +100,19 @@ describe('/api/v1/items', () => {
     });
   });
 
+  it('DELETE /:id should delete items for valid user', async () => {
+    const { agent } = await signUpUser();
+
+    const { body: item } = await agent.post('/api/v1/items').send({
+      description: 'apples'
+    });
+
+    const { status, body } = await agent.delete(`/api/v1/items/${item.id}`);
+    expect(status).toBe(200);
+    expect(body).toEqual(item);
+
+    const { body: items } = await agent.get('/api/v1/items');
+
+    expect(items.length).toBe(0);
+  });
 });

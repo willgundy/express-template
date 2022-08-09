@@ -50,8 +50,6 @@ describe('/api/v1/user', () => {
       .post('/api/v1/user/signin')
       .send({ ...credentials, email: 'bad@email.com' });
 
-    console.log(res.body);
-
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({
       status: 400,

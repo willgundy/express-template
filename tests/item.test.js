@@ -1,7 +1,7 @@
 
-// const request = require('supertest');
+const request = require('supertest');
 const { setupDb, signUpUser } = require('./utils.js');
-// const app = require('../lib/app');
+const app = require('../lib/app');
 
 describe('/api/v1/items', () => {
   beforeEach(setupDb);
@@ -44,4 +44,60 @@ describe('/api/v1/items', () => {
     expect(resp2.status).toEqual(200);
     expect(resp2.body).toEqual([user2Item]);
   });
+
+  it('GET /:id should get an item', async () => {
+    const { agent } = await signUpUser();
+
+    const { body: item } = await agent.post('/api/v1/items').send({
+      description: 'apples'
+    });
+    const { status, body: got } = await agent.get(`/api/v1/items/${item.id}`);
+
+    expect(status).toBe(200);
+    expect(got).toEqual(item);
+  });
+
+  it('GET / should return a 401 if not authenticated', async () => {
+    const { status } = await request(app).get('/api/v1/items');
+    expect(status).toEqual(401);
+  });
+
+  it('UPDATE /:id should update an item', async () => {
+    const { agent } = await signUpUser();
+
+    const { body: item } = await agent.post('/api/v1/items').send({
+      description: 'apples'
+    });
+
+    const { status, body: updated } = await agent
+      .put(`/api/v1/items/${item.id}`)
+      .send({ description: 'eggs' });
+
+    expect(status).toBe(200);
+    expect(updated).toEqual({ ...item, description: 'eggs' });
+  });
+
+  it('UPDATE /:id should 403 for invalid users', async () => {
+    const { agent } = await signUpUser();
+
+    const { body: item } = await agent.post('/api/v1/items').send({
+      description: 'apples'
+    });
+
+    const { agent: agent2 } = await signUpUser({
+      email: 'user2@email.com',
+      password: 'password',
+    });
+
+    const { status, body } = await agent2
+      .put(`/api/v1/items/${item.id}`)
+      .send({ description: 'eggs' });
+
+    expect(status).toBe(403);
+    expect(body).toEqual({
+      status: 403,
+      message: 'You do not have access to view this page',
+    });
+  });
+
 });

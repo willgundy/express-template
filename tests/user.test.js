@@ -68,4 +68,14 @@ describe('/api/v1/user', () => {
       message: 'Invalid credentials',
     });
   });
+
+  it('/signout', async () => {
+    const { agent } = await signUpUser();
+
+    const { body } = await agent.delete('/api/v1/user/signout');
+    expect(body).toEqual({ success: true });
+
+    const { statusCode } = await agent.get('/api/v1/user/verify');
+    expect(statusCode).toBe(401);
+  });
 });

@@ -1,15 +1,13 @@
-const pool = require('../lib/utils/pool.js');
-const { readFileSync } = require('node:fs');
-const sql = readFileSync('./sql/setup.sql', 'utf-8');
+const sequelize = require('../lib/utils/sequelize.js');
 const request = require('supertest');
 const app = require('../lib/app');
 
 function setupDb() {
-  return pool.query(sql);
+  return sequelize.sync({ force: true });
 }
 
 function closeAll() {
-  return pool.end();
+  return sequelize.close();
 }
 
 afterAll(closeAll);

@@ -1,4 +1,4 @@
-const pool = require('../lib/utils/pool.js');
+const pool = require('../lib/utils/sequelize.js');
 const { readFileSync } = require('node:fs');
 const sql = readFileSync('./sql/setup.sql', 'utf-8');
 const request = require('supertest');
